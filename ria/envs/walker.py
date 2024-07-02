@@ -1,11 +1,12 @@
 import collections
+import os
 import numpy as np
 import tensorflow as tf
 from gymnasium import utils
 from gymnasium.envs.mujoco import mujoco_env
 import gymnasium as gym
 import time
-
+from gymnasium.spaces import Box
 _DEFAULT_TIME_LIMIT = 25
 _CONTROL_TIMESTEP = .025
 _STAND_HEIGHT = 1.2
@@ -28,13 +29,24 @@ class WalkerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.damping_scale_set = damping_scale_set
         self.label_index = None
 
-        model_path = "walker_dm.xml"
-        mujoco_env.MujocoEnv.__init__(self, model_path, 4)
+        # Set the correct model path using dir_path
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        model_path = os.path.join(dir_path, "assets", "walker.xml")
+        frame_skip = 4
 
+        # Define action space before MujocoEnv initialization
+        self.action_space = Box(low=-1.0, high=1.0, shape=(6,), dtype=np.float32)
+
+        mujoco_env.MujocoEnv.__init__(self, model_path, frame_skip, observation_space=None)
+
+        obs_shape = self._get_obs().shape
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=obs_shape, dtype=np.float32)
+
+        # Define observation and action spaces
         self.original_mass = np.copy(self.model.body_mass)
         self.original_damping = np.copy(self.model.dof_damping)
 
-        utils.EzPickle.__init__(self, move_speed, mass_scale_set, damping_scale_set)
+        utils.EzPickle.__init__(self, self.move_speed, self.mass_scale_set, self.damping_scale_set)
 
     def step(self, action):
         posbefore = self.sim.data.qpos[0]

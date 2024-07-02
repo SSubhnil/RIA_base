@@ -1,3 +1,17 @@
+import os
+os.environ['MUJOCO_PY_MUJOCO_PATH'] = '/home/subhnils/.mujoco/mujoco210'
+if '/home/subhnils/.mujoco/mujoco210/bin' not in os.environ.get('LD_LIBRARY_PATH', ''):
+    os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/home/subhnils/.mujoco/mujoco210/bin'
+if '/usr/lib/nvidia' not in os.environ.get('LD_LIBRARY_PATH', ''):
+    os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/usr/lib/nvidia'
+# Clean up duplicates and empty paths in LD_LIBRARY_PATH
+os.environ['LD_LIBRARY_PATH'] = ':'.join(sorted(set(os.environ['LD_LIBRARY_PATH'].split(':'))))
+os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'].replace('::', ':').strip(':')
+
+# Debugging: Print environment variables to ensure they are set correctly
+print("MUJOCO_PY_MUJOCO_PATH:", os.environ['MUJOCO_PY_MUJOCO_PATH'])
+print("LD_LIBRARY_PATH:", os.environ['LD_LIBRARY_PATH'])
+
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 from ria.dynamics.ria import MCLMultiHeadedCaDMDynamicsModel
@@ -12,16 +26,17 @@ from ria.envs.config import get_environment_config
 
 from tensorboardX import SummaryWriter
 import json
-import os
-import gym
+# mujoco_py
+import gymnasium as gym
 import argparse
-os.environ['MUJOCO_PY_MUJOCO_PATH'] = '/home/jovyan/mujoco/mujoco-2.3.7'
-os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/home/jovyan/mujoco/mujoco-2.3.7/bin'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Uses 2nd GPU on server
+# Set environment variables for MuJoCo
+
+
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Uses 2nd GPU on server
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 os.environ["MUJOCO_GL"] = "osmesa"
-os.environ['PATH'] = '/local/ffmpeg-7.0-amd64-static/ffmpeg:'
+# os.environ['PATH'] = '/local/ffmpeg-7.0-amd64-static/ffmpeg:'
 
 # Specify GPU index
 
@@ -170,7 +185,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Trajectory-wise MCL")
     parser.add_argument("--save_name", default="RIA/", help="experiments name")
     parser.add_argument("--seed", type=int, default=0, help="random_seed")
-    parser.add_argument("--dataset", default="halfcheetah", help="environment flag")
+    parser.add_argument("--dataset", default="walker", help="environment flag")
     parser.add_argument(
         "--hidden_size", type=int, default=200, help="size of hidden feature"
     )
@@ -233,7 +248,7 @@ if __name__ == "__main__":
         default=0,
         help="flag to use simulation parameter as an input",
     )
-
+# walker_walk
     parser.add_argument(
         "--sep_layer_size",
         type=int,

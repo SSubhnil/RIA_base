@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
-from gym.envs.mujoco import mujoco_env
-from gym import utils
+from gymnasium.envs.mujoco import mujoco_env
+from gymnasium import utils
 import os
 import time
 

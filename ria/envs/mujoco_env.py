@@ -2,8 +2,8 @@ import numpy as np
 import os.path as osp
 from ria import spaces
 from ria.envs.base import Env
-from ria.mujoco_py import MjModel, MjViewer
-from gym.utils import seeding
+from mujoco import MjModel, MjViewer
+from gymnasium.utils import seeding
 
 MODEL_DIR = osp.abspath(
     osp.join(osp.dirname(__file__), "../../../vendor/mujoco_models")

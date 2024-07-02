@@ -22,7 +22,7 @@ def get_environment_config(config):
         config['max_path_length'] = 500
         config['total_timesteps'] = 2000000
         config["simulation_param_dim"] = 2
-        env = WalkerEnv(mode='walk',mass_set=train_mass_set, length_set=train_length_set)
+        env = WalkerEnv(mode='walk', mass_scale_set=train_mass_scale_set, damping_scale_set=train_damping_scale_set)
         env.seed(config['seed'])
         env = normalize(env)
 

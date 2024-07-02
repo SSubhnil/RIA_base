@@ -1,4 +1,5 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import time
 from ria.logger import logger
 from ria.samplers.utils import rollout_multi
@@ -13,7 +14,7 @@ import os.path as osp
 import joblib
 import numpy as np
 from tensorboardX import SummaryWriter
-from tensorflow.contrib.tensorboard.plugins import projector
+# from tensorflow.plugins import projector
 
 class Trainer(object):
     """
