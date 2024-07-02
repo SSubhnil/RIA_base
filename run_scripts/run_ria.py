@@ -1,3 +1,5 @@
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from ria.dynamics.ria import MCLMultiHeadedCaDMDynamicsModel
 from ria.trainers.mb_trainer import Trainer
 from ria.policies.mpc_controller import MPCController
@@ -13,6 +15,18 @@ import json
 import os
 import gym
 import argparse
+os.environ['MUJOCO_PY_MUJOCO_PATH'] = '/home/jovyan/mujoco/mujoco-2.3.7'
+os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/home/jovyan/mujoco/mujoco-2.3.7/bin'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Uses 2nd GPU on server
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
+os.environ["PYOPENGL_PLATFORM"] = "osmesa"
+os.environ["MUJOCO_GL"] = "osmesa"
+os.environ['PATH'] = '/local/ffmpeg-7.0-amd64-static/ffmpeg:'
+
+# Specify GPU index
+
+
+
 
 
 def run_experiment(config):
@@ -275,7 +289,9 @@ if __name__ == "__main__":
     else:
         args.save_name = "/RAW/" + args.save_name
 
-    if args.dataset == "hopper":
+    if args.dataset == "walker":
+        args.save_name = "/WALKER_walk/" + args.save_name
+    elif args.dataset == "hopper":
         args.save_name = "/HOPPER/" + args.save_name
     elif args.dataset == "halfcheetah":
         args.save_name = "/HALFCHEETAH/" + args.save_name

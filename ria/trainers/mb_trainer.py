@@ -146,7 +146,9 @@ class Trainer(object):
 
         test_env_list = []
 
-        if self.env_flag == "halfcheetah" or self.env_flag == "halfcheetah_embed" :
+        if self.env_flag == "walker":
+            env_cls = WalkerEnv
+        elif self.env_flag == "halfcheetah" or self.env_flag == "halfcheetah_embed" :
             env_cls = HalfCheetahEnv
         elif self.env_flag == "cripple_ant":
             env_cls = CrippleAntEnv

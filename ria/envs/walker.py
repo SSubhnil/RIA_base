@@ -1,9 +1,9 @@
 import collections
 import numpy as np
 import tensorflow as tf
-from gym import utils
-from gym.envs.mujoco import mujoco_env
-
+from gymnasium import utils
+from gymnasium.envs.mujoco import mujoco_env
+import gymnasium as gym
 import time
 
 _DEFAULT_TIME_LIMIT = 25
@@ -13,8 +13,17 @@ _WALK_SPEED = 1
 _RUN_SPEED = 8
 
 class WalkerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, move_speed=0, mass_scale_set=[0.75, 1.0, 1.25], damping_scale_set=[0.75, 1.0, 1.25]):
-        self.move_speed = move_speed
+    def __init__(self, mode='walk', mass_scale_set=[0.75, 1.0, 1.25], damping_scale_set=[0.75, 1.0, 1.25]):
+        self.mode = mode
+        if mode == 'stand':
+            self.move_speed = 0
+        elif mode == 'walk':
+            self.move_speed = _WALK_SPEED
+        elif mode == 'run':
+            self.move_speed = _RUN_SPEED
+        else:
+            raise ValueError("Unsupported mode: choose from 'stand', 'walk', 'run'")
+ 
         self.mass_scale_set = mass_scale_set
         self.damping_scale_set = damping_scale_set
         self.label_index = None
@@ -35,6 +44,23 @@ class WalkerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         reward = (posafter - posbefore) / self.dt
         reward += alive_bonus
         reward -= 1e-3 * np.square(action).sum()
+
+        standing = rewards.tolerance(self.sim.data.qpos[2],  # torso height
+                                     bounds=(_STAND_HEIGHT, float('inf')),
+                                     margin=_STAND_HEIGHT/2)
+        upright = (1 + self.sim.data.qpos[4]) / 2  # assuming qpos[4] is torso upright
+        stand_reward = (3 * standing + upright) / 4
+        if self.move_speed == 0:
+            reward = stand_reward
+        else:
+            horizontal_velocity = self.sim.data.qvel[0]  # assuming qvel[0] is horizontal velocity
+            move_reward = rewards.tolerance(horizontal_velocity,
+                                            bounds=(self.move_speed, float('inf')),
+                                            margin=self.move_speed/2,
+                                            value_at_margin=0.5,
+                                            sigmoid='linear')
+            reward = stand_reward * (5 * move_reward + 1) / 6
+
         done = False
         ob = self._get_obs()
         return ob, reward, done, {}
@@ -65,24 +91,25 @@ class WalkerEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             self.reset_num = int(str(time.time())[-2:])
         except:
             self.reset_num = 1
-        self.np_random.seed(self.reset_num)
-        random_index = self.np_random.randint(len(self.mass_scale_set))
-        self.mass_scale = self.mass_scale_set[random_index]
-        self.label_index = random_index * len(self.damping_scale_set)
-        random_index = self.np_random.randint(len(self.damping_scale_set))
-        self.damping_scale = self.damping_scale_set[random_index]
-        self.label_index = random_index + self.label_index
-        self.change_env()
+        # self.np_random.seed(self.reset_num)
+        # random_index = self.np_random.randint(len(self.mass_scale_set))
+        # self.mass_scale = self.mass_scale_set[random_index]
+        # self.label_index = random_index * len(self.damping_scale_set)
+        # random_index = self.np_random.randint(len(self.damping_scale_set))
+        # self.damping_scale = self.damping_scale_set[random_index]
+        # self.label_index = random_index + self.label_index
+        # self.change_env()
         return self._get_obs()
 
     def change_env(self):
-        mass = np.copy(self.original_mass)
-        damping = np.copy(self.original_damping)
-        mass *= self.mass_scale
-        damping *= self.damping_scale
+        # mass = np.copy(self.original_mass)
+        # damping = np.copy(self.original_damping)
+        # mass *= self.mass_scale
+        # damping *= self.damping_scale
 
-        self.model.body_mass[:] = mass
-        self.model.dof_damping[:] = damping
+        # self.model.body_mass[:] = mass
+        # self.model.dof_damping[:] = damping
+        pass
 
     def change_mass(self, mass):
         self.mass_scale = mass

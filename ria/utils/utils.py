@@ -2,7 +2,8 @@ import numpy as np
 import scipy
 import scipy.signal
 import json
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 
 def compile_function(inputs, outputs, log_name=None):

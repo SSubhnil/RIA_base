@@ -7,3 +7,4 @@ from .hopper_env import HopperEnv
 from .ant_env import AntEnv
 from .swimmer_env import SwimmerEnv
 from .classic_control import RandomPendulumAll
+from .walker import WalkerEnv

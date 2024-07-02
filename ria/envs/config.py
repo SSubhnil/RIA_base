@@ -4,7 +4,29 @@ from ria.envs.classic_control import *
 
 
 def get_environment_config(config):
-    if config['dataset'] == 'pendulum':
+    
+    if config['dataset'] == 'walker':
+        # Redundant part of the code to retain functionality
+        train_mass_scale_set = [0.75, 0.85, 1.0, 1.15, 1.25]
+        train_damping_scale_set = [0.75, 0.85, 1.0, 1.15, 1.25]
+        config['num_test'] = 4
+        config['test_range'] = [
+            [[0.2, 0.3], [0.2, 0.3]],
+            [[0.4, 0.5], [0.4, 0.5]],
+            [[1.5, 1.6], [1.5, 1.6]],
+            [[1.7, 1.8], [1.7, 1.8]],
+            ]
+        ##########################################
+        config['total_test'] = 10
+        config['test_num_rollouts'] = 10
+        config['max_path_length'] = 500
+        config['total_timesteps'] = 2000000
+        config["simulation_param_dim"] = 2
+        env = WalkerEnv(mode='walk',mass_set=train_mass_set, length_set=train_length_set)
+        env.seed(config['seed'])
+        env = normalize(env)
+
+    elif config['dataset'] == 'pendulum':
         train_mass_set=[0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.20, 1.25]
 
         train_length_set=[0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.20, 1.25]

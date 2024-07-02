@@ -1,7 +1,8 @@
 from ria.dynamics.core.layers import MCLMultiHeadedCaDMEnsembleMLP, Reltaional_network
 from ria.dynamics.core.layers import MultiHeadedEnsembleContextPredictor, PureContrastEnsembleContextPredictor
 from collections import OrderedDict
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import tensorflow_probability as tfp
 
 import numpy as np
