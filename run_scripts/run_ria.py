@@ -40,10 +40,6 @@ os.environ["MUJOCO_GL"] = "osmesa"
 
 # Specify GPU index
 
-
-
-
-
 def run_experiment(config):
     env, config = get_environment_config(config)
 
@@ -110,7 +106,7 @@ def run_experiment(config):
         relation_flag=config['relation_flag'],
         no_weight=config['no_weight'],
         tem_dist=config['tem_dist'],
-        single_train=config['single_train'],
+        #single_train=config['single_train'],
     )
 
     policy = MPCController(
@@ -170,9 +166,9 @@ def run_experiment(config):
         mcl_cadm=True,
         history_length=config["history_length"],
         state_diff=config["state_diff"],
-        test_embed=config["test_embed"],
-        test_weight=config["test_weight"],
-        test_prederror=config["test_prederror"],
+        # test_embed=config["test_embed"],
+        #test_weight=config["test_weight"],
+        #test_prederror=config["test_prederror"],
         load_path=config["load_path"],
         config=config,
         # contrast_flag=config['contrast_flag'],
@@ -184,7 +180,7 @@ def run_experiment(config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Trajectory-wise MCL")
     parser.add_argument("--save_name", default="RIA/", help="experiments name")
-    parser.add_argument("--seed", type=int, default=0, help="random_seed")
+    parser.add_argument("--seed", type=int, default=42, help="random_seed")
     parser.add_argument("--dataset", default="walker", help="environment flag")
     parser.add_argument(
         "--hidden_size", type=int, default=200, help="size of hidden feature"

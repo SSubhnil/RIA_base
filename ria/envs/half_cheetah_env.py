@@ -162,3 +162,4 @@ class HalfCheetahEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def log_diagnostics(self, paths, prefix):
         return
+

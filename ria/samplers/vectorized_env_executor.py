@@ -60,6 +60,7 @@ class IterativeEnvExecutor(object):
         """
         obses = [env.reset() for env in self.envs]
         self.ts[:] = 0
+
         return obses
 
     @property
@@ -168,7 +169,14 @@ class ParallelEnvExecutor(object):
         """
         for remote in self.remotes:
             remote.send(("reset", None))
-        return sum([remote.recv() for remote in self.remotes], [])
+        obses = [remote.recv() for remote in self.remotes]
+        # Ensure all observations are lists, not tuples
+        obses = [list(obs) if isinstance(obs, tuple) else obs for obs in obses]
+
+        # Flatten the list of lists
+        obses = [item for sublist in obses for item in sublist]
+
+        return obses
 
     def get_labels(self):
         for remote in self.remotes:
@@ -252,13 +260,14 @@ def worker(remote, parent_remote, env_pickle, n_envs, max_path_length, seed, env
             for i in range(n_envs):
                 if dones[i] or (ts[i] >= max_path_length):
                     dones[i] = True
-                    obs[i] = envs[i].reset()
+                    obs[i] = envs[i].reset()[0]
                     ts[i] = 0
+
             remote.send((obs, rewards, dones, infos))
 
         # reset all the environments of the worker
         elif cmd == "reset":
-            obs = [env.reset() for env in envs]
+            obs = [env.reset()[0] for env in envs]
             ts[:] = 0
             remote.send(obs)
 

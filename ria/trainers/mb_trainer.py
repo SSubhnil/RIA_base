@@ -121,9 +121,9 @@ class Trainer(object):
         self.test_n_parallel = test_n_parallel
 
         if sess is None:
-            config = tf.ConfigProto()
-            config.gpu_options.allow_growth = True
-            sess = tf.Session(config=config)
+            config_proto = tf.compat.v1.ConfigProto()
+            config_proto.gpu_options.allow_growth = True
+            sess = tf.compat.v1.Session(config=config_proto)
         self.sess = sess
 
     def train(self):
@@ -169,7 +169,7 @@ class Trainer(object):
             env_cls = SwimmerEnv
 
         train_env = env_cls()
-        train_env.seed(0)
+        train_env.seed(42)
         train_env = normalize(train_env)
         for i in range(0, self.num_test):
             test_env = env_cls(self.test_range[i][0], self.test_range[i][1])
@@ -193,7 +193,7 @@ class Trainer(object):
 
         with self.sess.as_default() as sess:
 
-            sess.run(tf.initializers.global_variables())
+            sess.run(tf.compat.v1.global_variables_initializer())
 
             start_time = time.time()
             for itr in range(self.start_itr, self.n_itr):

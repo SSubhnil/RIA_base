@@ -137,7 +137,7 @@ class MCLMultiHeadedCaDMDynamicsModel(Serializable):
 
         # Dimensionality of state and action space
         self.obs_space_dims = obs_space_dims = env.observation_space.shape[0]
-        self.proc_obs_space_dims = proc_obs_space_dims = env.proc_observation_space_dims
+        self.proc_obs_space_dims = proc_obs_space_dims = env.observation_space.shape[0] # env.proc_observation_space_dims
         if len(env.action_space.shape) == 0:
             self.action_space_dims = action_space_dims = env.action_space.n
             self.discrete = True
@@ -2042,10 +2042,23 @@ class MCLMultiHeadedCaDMDynamicsModel(Serializable):
             norm_save_path = load_path + "_norm_stats"
             self.normalization = joblib.load(norm_save_path)
 
+    def check_for_nan_inf(self, array, name):
+        array = np.asarray(array, dtype=np.float64)
+        if np.isnan(array).any():
+            print(f"NaN values found in {name}")
+        if np.isinf(array).any():
+            print(f"Inf values found in {name}")
+
     def compute_normalization(self, obs, act, delta, cp_obs, cp_act, back_delta):
         assert obs.shape[0] == delta.shape[0] == act.shape[0]
         proc_obs = self.env.obs_preproc(obs)
 
+        proc_obs = np.asarray(proc_obs, dtype=np.float64)
+        act = np.asarray(act, dtype=np.float64)
+        delta = np.asarray(delta, dtype=np.float64)
+        cp_obs = np.asarray(cp_obs, dtype=np.float64)
+        cp_act = np.asarray(cp_act, dtype=np.float64)
+        back_delta = np.asarray(back_delta, dtype=np.float64)
         # store means and std in dict
         self.normalization = OrderedDict()
         self.normalization["obs"] = (
@@ -2072,6 +2085,7 @@ class MCLMultiHeadedCaDMDynamicsModel(Serializable):
             np.mean(back_delta, axis=(0, 1)),
             np.std(back_delta, axis=(0, 1)),
         )
+
 
     def get_normalization_stats(self):
         if self.normalize_input:

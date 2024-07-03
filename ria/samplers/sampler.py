@@ -99,12 +99,14 @@ class Sampler(BaseSampler):
                 self.reset_cem(i)
 
         # initial reset of meta_envs
-        obses = np.asarray(self.vec_env.reset())
+        obses = np.asarray(self.vec_env.reset(), dtype=object)
+
         sim_params = self.vec_env.get_sim_params()
         state_counts = [0] * self.vec_env.num_envs
 
         # history
         self.obs_dim = obses.shape[1]
+
         history_state = np.zeros((obses.shape[0], self.obs_dim * self.history_length))
         history_act = np.zeros((obses.shape[0], self.act_dim * self.history_length))
 
@@ -269,6 +271,8 @@ class Sampler(BaseSampler):
                 running_paths[idx]["sim_params"].append(sim_param.copy())
 
                 # making a history buffer
+                # print(f"Shape of next_obses[idx]: {next_obses[idx].shape}")
+                # print(f"Shape of observation: {observation.shape}")
                 if state_counts[idx] < self.history_length:
                     if self.state_diff:
                         history_state[idx][
