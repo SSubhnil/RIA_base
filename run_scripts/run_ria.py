@@ -1,9 +1,11 @@
 import os
-os.environ['MUJOCO_PY_MUJOCO_PATH'] = '/home/subhnils/.mujoco/mujoco210'
-if '/home/subhnils/.mujoco/mujoco210/bin' not in os.environ.get('LD_LIBRARY_PATH', ''):
-    os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/home/subhnils/.mujoco/mujoco210/bin'
-if '/usr/lib/nvidia' not in os.environ.get('LD_LIBRARY_PATH', ''):
-    os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/usr/lib/nvidia'
+os.environ['LD_LIBRARY_PATH'] = '/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:' + os.environ.get('LD_LIBRARY_PATH', '')
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Uses 2nd GPU on server
+os.environ['MUJOCO_PY_MUJOCO_PATH'] = '/home/jovyan/mujoco/mujoco210'
+if '/home/jovyan/mujoco/mujoco210/bin' not in os.environ.get('LD_LIBRARY_PATH', ''):
+    os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/home/jovyan/mujoco/mujoco210/bin'
+# if '/usr/lib/nvidia' not in os.environ.get('LD_LIBRARY_PATH', ''):
+#     os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH', '') + ':/usr/lib/nvidia'
 # Clean up duplicates and empty paths in LD_LIBRARY_PATH
 os.environ['LD_LIBRARY_PATH'] = ':'.join(sorted(set(os.environ['LD_LIBRARY_PATH'].split(':'))))
 os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'].replace('::', ':').strip(':')
@@ -12,8 +14,17 @@ os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'].replace('::', ':')
 print("MUJOCO_PY_MUJOCO_PATH:", os.environ['MUJOCO_PY_MUJOCO_PATH'])
 print("LD_LIBRARY_PATH:", os.environ['LD_LIBRARY_PATH'])
 
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+for device in physical_devices:
+    print(device)
+
+# Enable memory growth to allow TensorFlow to use GPU memory incrementally
+for device in physical_devices:
+    tf.config.experimental.set_memory_growth(device, True)
+
+
+
 from ria.dynamics.ria import MCLMultiHeadedCaDMDynamicsModel
 from ria.trainers.mb_trainer import Trainer
 from ria.policies.mpc_controller import MPCController
@@ -32,7 +43,7 @@ import argparse
 # Set environment variables for MuJoCo
 
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0' # Uses 2nd GPU on server
+
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 os.environ["MUJOCO_GL"] = "osmesa"
@@ -183,20 +194,20 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42, help="random_seed")
     parser.add_argument("--dataset", default="walker", help="environment flag")
     parser.add_argument(
-        "--hidden_size", type=int, default=200, help="size of hidden feature"
+        "--hidden_size", type=int, default=256, help="size of hidden feature"
     )
     parser.add_argument(
-        "--traj_batch_size", type=int, default=250, help="batch size (trajectory)"
+        "--traj_batch_size", type=int, default=128, help="batch size (trajectory)"
     )
     parser.add_argument(
         "--tem_dist", type=float, default=6e-1, help="tem"
     )
     parser.add_argument(
-        "--sample_batch_size", type=int, default=200, help="batch size (sample)"
+        "--sample_batch_size", type=int, default=128, help="batch size (sample)"
     )
     parser.add_argument("--segment_size", type=int, default=10, help="segment size")
     parser.add_argument(
-        "--n_epochs", type=int, default=50, help="training epochs per iteration"
+        "--n_epochs", type=int, default=30, help="training epochs per iteration"
     )
     parser.add_argument("--lr", type=float, default=0.001, help="learning_rate")
     parser.add_argument("--horizon", type=int, default=30, help="horrizon for planning")

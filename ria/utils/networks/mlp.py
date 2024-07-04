@@ -1,4 +1,5 @@
 import tensorflow as tf
+tf.disable_v2_behavior()
 from ria.utils.utils import get_original_tf_name, get_last_scope
 
 

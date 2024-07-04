@@ -1,7 +1,9 @@
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from ria.utils.serializable import Serializable
 from ria.utils.utils import remove_scope_from_name
 from ria.dynamics.core.utils import *
-import tensorflow.compat.v1 as tf
+
 import copy
 from collections import OrderedDict
 
@@ -204,6 +206,7 @@ class Layer(Serializable):
         self._params = params
         self._assign_ops = None
         self._assign_phs = None
+
 
     def build_graph(self):
         """

@@ -1,5 +1,7 @@
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
+tf.keras.backend.clear_session()
+tf.compat.v1.disable_v2_behavior()
+tf.compat.v1.disable_eager_execution()
 import time
 from ria.logger import logger
 from ria.samplers.utils import rollout_multi
@@ -121,9 +123,9 @@ class Trainer(object):
         self.test_n_parallel = test_n_parallel
 
         if sess is None:
-            config_proto = tf.compat.v1.ConfigProto()
-            config_proto.gpu_options.allow_growth = True
-            sess = tf.compat.v1.Session(config=config_proto)
+            config = tf.compat.v1.ConfigProto()
+            config.gpu_options.allow_growth = True
+            sess = tf.compat.v1.Session(config=config)
         self.sess = sess
 
     def train(self):
@@ -192,7 +194,6 @@ class Trainer(object):
             discrete = False
 
         with self.sess.as_default() as sess:
-
             sess.run(tf.compat.v1.global_variables_initializer())
 
             start_time = time.time()
@@ -305,6 +306,8 @@ class Trainer(object):
                     logger.log("Saved")
 
                     logger.dumpkvs()
+
+                    # sess.run(self._assign_ops, feed_dict=feed_dict)
                 else:
                     logger.log("Test - {}/{} iterations".format(itr + 1, self.n_itr))
                     checkdir = osp.join(logger.get_dir(), "checkpoints")

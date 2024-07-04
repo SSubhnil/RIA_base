@@ -1,3 +1,5 @@
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from ria.dynamics.core.layers import MCLMultiHeadedCaDMEnsembleMLP, Reltaional_network
 from ria.dynamics.core.layers import MultiHeadedEnsembleContextPredictor, PureContrastEnsembleContextPredictor
 from collections import OrderedDict
@@ -1402,6 +1404,7 @@ class MCLMultiHeadedCaDMDynamicsModel(Serializable):
         assert 1 > valid_split_ratio >= 0
 
         sess = tf.get_default_session()
+        sess.run(tf.compat.v1.global_variables_initializer())
 
         obs_shape = obs.shape
         obs_next_shape = obs_next.shape
@@ -2025,6 +2028,7 @@ class MCLMultiHeadedCaDMDynamicsModel(Serializable):
 
     def save(self, save_path):
         sess = tf.get_default_session()
+        sess.run(tf.compat.v1.global_variables_initializer())
         ps = sess.run(self.params)
         joblib.dump(ps, save_path)
         if self.normalization is not None:
@@ -2033,6 +2037,7 @@ class MCLMultiHeadedCaDMDynamicsModel(Serializable):
 
     def load(self, load_path):
         sess = tf.get_default_session()
+        sess.run(tf.compat.v1.global_variables_initializer())
         loaded_params = joblib.load(load_path)
         restores = []
         for p, loaded_p in zip(self.params, loaded_params):

@@ -1,11 +1,11 @@
 import tensorflow as tf
+tf.compat.v1.disable_v2_behavior()
 import numpy as np
 import scipy
 
-
 def compile_function(inputs, outputs, log_name=None):
     def run(*input_vals):
-        sess = tf.get_default_session()
+        sess = tf.compat.v1.get_default_session()
         return sess.run(outputs, feed_dict=dict(list(zip(inputs, input_vals))))
 
     return run

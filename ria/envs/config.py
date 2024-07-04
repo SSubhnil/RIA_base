@@ -9,7 +9,7 @@ def get_environment_config(config):
         # Redundant part of the code to retain functionality
         train_mass_scale_set = [0.75, 0.85, 1.0, 1.15, 1.25]
         train_damping_scale_set = [0.75, 0.85, 1.0, 1.15, 1.25]
-        config['num_test'] = 4
+        config['num_test'] = 2
         config['test_range'] = [
             [[0.2, 0.3], [0.2, 0.3]],
             [[0.4, 0.5], [0.4, 0.5]],
@@ -20,7 +20,7 @@ def get_environment_config(config):
         config['total_test'] = 10
         config['test_num_rollouts'] = 10
         config['max_path_length'] = 500
-        config['total_timesteps'] = 2000000
+        config['total_timesteps'] = 1000000
         config["simulation_param_dim"] = 2
         env = WalkerEnv(mass_scale_set=train_mass_scale_set, damping_scale_set=train_damping_scale_set)
         env.seed(config['seed'])
